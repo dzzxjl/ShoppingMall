@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="Orders">
+
+    <resultMap id="OrdersMap" type="Orders">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="date" property="date"/>
+        <result column="price" property="price"/>
+        <result column="status" property="status"/>
+        <result column="category" property="category"/>
+    </resultMap>
+
+    <sql id="col">
+        user_id,price,status,category
+    </sql>
+
+    <sql id="val">
+        #{userId},#{price},#{status},#{category}
+    </sql>
+
+    <sql id="col_val">
+        <if test="userId != null">user_id = #{userId}</if>
+        <if test="price != null">and price = #{price}</if>
+        <if test="status != null">and status = #{status}</if>
+        <if test="category != null">and category = #{category}</if>
+    </sql>
+
+    <select id="getById" parameterType="int" resultMap="OrdersMap">
+        SELECT * from orders where id = #{id}
+    </select>
+
+    <select id="get" parameterType="map" resultMap="OrdersMap">
+        SELECT * from orders
+        <where>
+            <include refid="col_val"/>
+        </where>
+        order by date DESC
+    </select>
+
+    <insert id="create" parameterType="Orders">
+        insert into orders (
+        date,
+        <include refid="col"/>
+        )
+        VALUES(
+        now(),
+        <include refid="val"/>
+        )
+    </insert>
+
+    <update id="update" parameterType="Orders">
+        update orders
+        <set>
+            date = now(),
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="price != null"> price = #{price},</if>
+            <if test="status != null"> status = #{status},</if>
+            <if test="category != null"> category = #{category}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        delete from orders where id = #{id}
+    </delete>
+
+    <select id="count" parameterType="map" resultType="int">
+        select count(*) from orders
+        <where>
+            <include refid="col_val"/>
+        </where>
+    </select>
+
+    <select id="paging" parameterType="map" resultMap="OrdersMap">
+        select * from orders
+        <where>
+            <include refid="col_val"/>
+        </where>
+        ORDER BY id DESC limit #{offset},#{limit}
+    </select>
+</mapper>

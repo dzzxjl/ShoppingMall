@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="Product">
+
+    <sql id="col">
+        name,category,price,src,intro
+    </sql>
+
+    <sql id="val">
+        #{name},#{category},#{price},#{src},#{intro}
+    </sql>
+
+    <sql id="col_val">
+        <if test="category != null">category = #{category}</if>
+        <if test="price != null">and price = #{price}</if>
+        <if test="src != null">and src = #{src}</if>
+        <if test="intro != null">and intro = #{intro}</if>
+    </sql>
+
+    <select id="get" parameterType="int" resultType="Product">
+        SELECT * from product where id = #{id}
+    </select>
+
+    <insert id="create" parameterType="Product">
+        INSERT INTO product (
+        <include refid="col"/>
+        )
+        VALUES(
+        <include refid="val"/>
+        )
+    </insert>
+
+    <update id="update" parameterType="Product">
+        update product
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="price != null"> price = #{price},</if>
+            <if test="src != null"> src = #{src},</if>
+            <if test="intro != null"> intro = #{intro}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        delete from product where id = #{id}
+    </delete>
+
+    <select id="count" parameterType="map" resultType="int">
+        select count(*) from product
+        <where>
+            <if test="name != null">name like COMCAT("%",#{name},"%")</if>
+            <include refid="col_val"/>
+        </where>
+    </select>
+
+    <select id="paging" parameterType="map" resultType="Product">
+        select * from product
+        <where>
+            <if test="name != null">name like COMCAT("%",#{name},"%")</if>
+            <include refid="col_val"/>
+        </where>
+        ORDER BY id DESC limit #{offset},#{limit}
+    </select>
+
+    <select id="getCategory" resultType="java.lang.String">
+        select category from product GROUP BY category
+    </select>
+</mapper>

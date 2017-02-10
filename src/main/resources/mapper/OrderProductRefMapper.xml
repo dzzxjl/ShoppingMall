@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="OrderProductRef">
+
+    <resultMap id="OrderProductRefMap" type="OrderProductRef">
+        <id column="id" property="id"/>
+        <result column="product_id" property="productId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="num" property="num"/>
+    </resultMap>
+
+    <sql id="col">
+        order_id,product_id,num
+    </sql>
+
+    <sql id="val">
+        #{orderId},#{productId},#{num}
+    </sql>
+
+    <sql id="col_val">
+        <if test="orderId != null">order_id = #{orderId}</if>
+        <if test="productId != null">and product_id = #{productId}</if>
+        <if test="num != null">and num = #{num}</if>
+    </sql>
+
+    <select id="getByOrderId" parameterType="int" resultMap="OrderProductRefMap">
+        SELECT * from order_product_ref where order_id = #{orderId}
+    </select>
+
+    <insert id="create" parameterType="OrderProductRef">
+        insert into order_product_ref (
+        <include refid="col"/>
+        )
+        VALUES(
+        <include refid="val"/>
+        )
+    </insert>
+
+    <update id="update" parameterType="OrderProductRef">
+        update order_product_ref
+        <set>
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="productId != null"> product_id = #{productId},</if>
+            <if test="num != null"> num = #{num}</if>
+        </set>
+    </update>
+
+    <delete id="deleteById" parameterType="int">
+        delete from order_product_ref where id = #{id}
+    </delete>
+
+    <select id="count" parameterType="map" resultType="int">
+        select count(*) from order_product_ref
+        <where>
+            <include refid="col_val"/>
+        </where>
+    </select>
+</mapper>
